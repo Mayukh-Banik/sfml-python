@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 4.0.0)
 
-set(PROJECT_NAME nanobind_example)
+set(PROJECT_NAME python_sfml)
 
 project(${PROJECT_NAME} LANGUAGES CXX)
 
@@ -50,11 +50,26 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 nanobind_add_module(
-  nanobind_example_ext
+  ${PROJECT_NAME}
   STABLE_ABI
   NB_STATIC
   src/nanobind_example_ext.cpp
 )
 
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  SFML::Graphics
+  SFML::System
+  SFML::Window
+  SFML::Network
+  SFML::Audio
+  SFML::Main
+)
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+  PROJECT_NAME=${PROJECT_NAME}
+)
+
 # Install directive for scikit-build-core
-install(TARGETS nanobind_example_ext LIBRARY DESTINATION nanobind_example)
+install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${PROJECT_NAME})
+
+
