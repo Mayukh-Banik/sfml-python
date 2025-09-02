@@ -1,6 +1,11 @@
-cmake_minimum_required(VERSION 3.15...3.26)
+cmake_minimum_required(VERSION 4.0.0)
 
-project(nanobind_example LANGUAGES CXX)
+set(PROJECT_NAME nanobind_example)
+
+project(${PROJECT_NAME} LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (NOT SKBUILD)
   message(WARNING "\
@@ -25,33 +30,29 @@ if (NOT SKBUILD)
   after editing C++ files.")
 endif()
 
-# Try to import all Python components potentially needed by nanobind
-find_package(Python 3.8
+find_package(
+  Python 3.13
   REQUIRED COMPONENTS Interpreter Development.Module
-  OPTIONAL_COMPONENTS Development.SABIModule)
+  OPTIONAL_COMPONENTS Development.SABIModule
+)
 
-# Import nanobind through CMake's find_package mechanism
 find_package(nanobind CONFIG REQUIRED)
 
-# We are now ready to compile the actual extension module
+include(FetchContent)
+
+FetchContent_Declare(SFML
+  GIT_REPOSITORY https://github.com/SFML/SFML.git
+  GIT_TAG 3.0.1
+  GIT_SHALLOW ON
+  EXCLUDE_FROM_ALL
+  SYSTEM)
+
+FetchContent_MakeAvailable(SFML)
+
 nanobind_add_module(
-  # Name of the extension
   nanobind_example_ext
-
-  # Target the stable ABI for Python 3.12+, which reduces
-  # the number of binary wheels that must be built. This
-  # does nothing on older Python versions
   STABLE_ABI
-
-  # Build libnanobind statically and merge it into the
-  # extension (which itself remains a shared library)
-  #
-  # If your project builds multiple extensions, you can
-  # replace this flag by NB_SHARED to conserve space by
-  # reusing a shared libnanobind across libraries
   NB_STATIC
-
-  # Source code goes here
   src/nanobind_example_ext.cpp
 )
 
