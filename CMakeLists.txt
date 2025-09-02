@@ -31,7 +31,7 @@ if (NOT SKBUILD)
 endif()
 
 find_package(
-  Python 3.13
+  Python 3.12
   REQUIRED COMPONENTS Interpreter Development.Module
   OPTIONAL_COMPONENTS Development.SABIModule
 )
