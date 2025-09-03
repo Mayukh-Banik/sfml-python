@@ -62,7 +62,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   SFML::Window
   SFML::Network
   SFML::Audio
-  SFML::Main
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
