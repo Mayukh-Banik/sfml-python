@@ -31,7 +31,7 @@ if (NOT SKBUILD)
 endif()
 
 find_package(
-  Python 3.12
+  Python 3.8
   REQUIRED COMPONENTS Interpreter Development.Module
   OPTIONAL_COMPONENTS Development.SABIModule
 )
@@ -67,6 +67,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
   PROJECT_NAME=${PROJECT_NAME}
+)
+
+target_include_directories(${PROJECT_NAME}
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/Bindings
 )
 
 install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${PROJECT_NAME})
