@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 4.0.0)
 
-set(PROJECT_NAME sfml)
+set(PROJECT_NAME pySFML)
 
 project(${PROJECT_NAME} LANGUAGES CXX)
 
