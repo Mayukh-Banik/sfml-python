@@ -69,7 +69,4 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
   PROJECT_NAME=${PROJECT_NAME}
 )
 
-# Install directive for scikit-build-core
 install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${PROJECT_NAME})
-
-
