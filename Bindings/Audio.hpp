@@ -5,6 +5,6 @@
 
 void Audio(nb::module_& m)
 {
-    nb::module_ audioModule = m.def_submodule("Audio");
+    nb::module_ audioModule = m.def_submodule("Audio", "Audio Submodule");
     AudioResource(audioModule);
 }

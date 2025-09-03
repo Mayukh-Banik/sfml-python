@@ -9,9 +9,6 @@ using namespace nb::literals;
 
 NB_MODULE(PROJECT_NAME, m)
 {
-    m.doc() = "This is a \"hello world\" example with nanobind";
-    m.def("div", [](int a, int b)
-          { return a / b; }, "a"_a, "b"_a);
-
-    AudioResource(m);
+    m.doc() = "This is a project wrapping C++ SFML for Python 3.8+";
+    Audio(m);
 }

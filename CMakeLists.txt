@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 4.0.0)
 
-set(PROJECT_NAME python_sfml)
+set(PROJECT_NAME sfml)
 
 project(${PROJECT_NAME} LANGUAGES CXX)
 
@@ -53,7 +53,7 @@ nanobind_add_module(
   ${PROJECT_NAME}
   STABLE_ABI
   NB_STATIC
-  src/nanobind_example_ext.cpp
+  src/RootBinding.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -74,4 +74,4 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}/Bindings
 )
 
-install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${PROJECT_NAME})
+install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION .)
