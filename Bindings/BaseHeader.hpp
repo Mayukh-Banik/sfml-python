@@ -7,9 +7,6 @@
 #include "SFML/Graphics.hpp"
 
 #include <nanobind/nanobind.h>
-#include <nanobind/ndarray.h>
-#include <nanobind/stl/filesystem.h>
-#include <nanobind/stl/vector.h>
 
 
 

@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: [windows-latest, macos-latest, ubuntu-latest]
-        python-version: ["3.8", "3.12"]
+        python-version: ["3.8", "3.13"]
 
     steps:
     - uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
     - name: Set min macOS version
       if: runner.os == 'macOS'
       run: |
-        echo "MACOSX_DEPLOYMENT_TARGET=10.14" >> $GITHUB_ENV
+        echo "MACOSX_DEPLOYMENT_TARGET=10.15" >> $GITHUB_ENV
 
     - name: Build and install
       run: |
