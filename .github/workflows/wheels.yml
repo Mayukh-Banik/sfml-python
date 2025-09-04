@@ -64,7 +64,6 @@ jobs:
     
     - uses: pypa/cibuildwheel@v2.22
       env:
-        # Configure cibuildwheel to install system dependencies
         CIBW_BEFORE_ALL_LINUX: |
           yum update -y && yum install -y \
             cmake \
@@ -97,12 +96,6 @@ jobs:
             libogg-dev \
             libvorbis-dev \
             libasound2-dev)
-        
-        CIBW_BEFORE_ALL_MACOS: |
-          brew install cmake ninja freetype
-        
-        CIBW_BEFORE_ALL_WINDOWS: |
-          choco install cmake ninja
     
     - name: Verify clean directory
       run: git diff --exit-code
