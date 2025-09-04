@@ -1,5 +1,4 @@
 name: Wheels
-
 on:
   workflow_dispatch:
   pull_request:
@@ -18,38 +17,14 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
-
-    - name: Build SDist
-      run: pipx run build --sdist
-
-    - name: Check metadata
-      run: pipx run twine check dist/*
-
-    - uses: actions/upload-artifact@v4
-      with:
-        name: dist-sdist
-        path: dist/*.tar.gz
-
-
-  build_wheels:
-    name: Wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-14, windows-latest]
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-
-    - name: Install Linux system dependencies
-      if: runner.os == 'Linux'
+    
+    - name: Install system dependencies for SDist
       run: |
         sudo apt-get update
         sudo apt-get install -y \
           build-essential \
+          cmake \
+          ninja-build \
           libfreetype6-dev \
           libx11-dev \
           libxrandr-dev \
@@ -60,14 +35,79 @@ jobs:
           libglu1-mesa-dev \
           libflac-dev \
           libogg-dev \
-          libvorbis-dev
+          libvorbis-dev \
+          libasound2-dev
+    
+    - name: Build SDist
+      run: pipx run build --sdist
+    
+    - name: Check metadata
+      run: pipx run twine check dist/*
+    
+    - uses: actions/upload-artifact@v4
+      with:
+        name: dist-sdist
+        path: dist/*.tar.gz
 
+  build_wheels:
+    name: Wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-latest]
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    
     - uses: pypa/cibuildwheel@v2.22
-
+      env:
+        # Configure cibuildwheel to install system dependencies
+        CIBW_BEFORE_ALL_LINUX: |
+          yum update -y && yum install -y \
+            cmake \
+            ninja-build \
+            freetype-devel \
+            libX11-devel \
+            libXrandr-devel \
+            libXcursor-devel \
+            libXi-devel \
+            systemd-devel \
+            mesa-libGL-devel \
+            mesa-libGLU-devel \
+            flac-devel \
+            libogg-devel \
+            libvorbis-devel \
+            alsa-lib-devel || \
+          (apt-get update && apt-get install -y \
+            build-essential \
+            cmake \
+            ninja-build \
+            libfreetype6-dev \
+            libx11-dev \
+            libxrandr-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libudev-dev \
+            mesa-common-dev \
+            libglu1-mesa-dev \
+            libflac-dev \
+            libogg-dev \
+            libvorbis-dev \
+            libasound2-dev)
+        
+        CIBW_BEFORE_ALL_MACOS: |
+          brew install cmake ninja freetype
+        
+        CIBW_BEFORE_ALL_WINDOWS: |
+          choco install cmake ninja
+    
     - name: Verify clean directory
       run: git diff --exit-code
       shell: bash
-
+    
     - name: Upload wheels
       uses: actions/upload-artifact@v4
       with:
@@ -79,15 +119,16 @@ jobs:
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
-
+    
     steps:
     - uses: actions/setup-python@v5
+    
     - uses: actions/download-artifact@v4
       with:
         path: dist
         pattern: dist-*
         merge-multiple: true
-
+    
     - uses: pypa/gh-action-pypi-publish@release/v1
       with:
         user: __token__
