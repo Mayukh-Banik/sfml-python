@@ -6,6 +6,8 @@ namespace nb = nanobind;
 #include "Audio/AudioResource.hpp"
 #include "Audio/Export.hpp"
 #include "Audio/InputSoundFile.hpp"
+#include "Audio/Listener.hpp"
+#include "Audio/Music.hpp"
 
 void Audio(nb::module_& m)
 {
@@ -13,4 +15,6 @@ void Audio(nb::module_& m)
     AudioResource(audioModule);
     Export(audioModule);
     InputSoundFile(audioModule);
+    Listener(audioModule);
+    Music(audioModule);
 }

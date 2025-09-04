@@ -1,8 +1,6 @@
 #pragma once
 
-#include "SFML/Audio/Export.hpp"
-#include <nanobind/nanobind.h>
-namespace nb = nanobind;
+#include "BaseHeader.hpp"
 
 void Export(nb::module_ &m)
 {

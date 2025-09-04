@@ -1,9 +1,6 @@
 #pragma once
 
-#include <SFML/Audio/AudioResource.hpp>
-#include <nanobind/nanobind.h>
-
-namespace nb = nanobind;
+#include "BaseHeader.hpp"
 
 void AudioResource(nb::module_ &m)
 {
