@@ -44,6 +44,24 @@ jobs:
       with:
         submodules: true
 
+    - name: Install Linux system dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          libfreetype6-dev \
+          libx11-dev \
+          libxrandr-dev \
+          libxcursor-dev \
+          libxi-dev \
+          libudev-dev \
+          mesa-common-dev \
+          libglu1-mesa-dev \
+          libflac-dev \
+          libogg-dev \
+          libvorbis-dev
+
     - uses: pypa/cibuildwheel@v2.22
 
     - name: Verify clean directory
