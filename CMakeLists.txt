@@ -36,6 +36,9 @@ find_package(
   OPTIONAL_COMPONENTS Development.SABIModule
 )
 
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(SFML_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+
 find_package(nanobind CONFIG REQUIRED)
 
 include(FetchContent)
@@ -54,6 +57,7 @@ nanobind_add_module(
   STABLE_ABI
   NB_STATIC
   src/RootBinding.cpp
+  Bindings/Audio.ixx
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -66,6 +70,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
   PROJECT_NAME=${PROJECT_NAME}
+)
+
+target_sources(${PROJECT_NAME}
+  PUBLIC
+  FILE_SET CXX_MODULES FILES
+  "Bindings/Audio.ixx"
 )
 
 target_include_directories(${PROJECT_NAME}

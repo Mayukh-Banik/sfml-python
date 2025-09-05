@@ -1,11 +1,20 @@
-#pragma once
+module;
 
-#include "BaseHeader.hpp"
+#include "SFML/Audio.hpp"
+#include "SFML/System.hpp"
+#include "SFML/Network.hpp"
+#include "SFML/Window.hpp"
+#include "SFML/Graphics.hpp"
 
+#include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/filesystem.h>
 #include <nanobind/stl/vector.h>
 #include <nanobind/stl/shared_ptr.h>
+
+export module Bindings;
+
+namespace nb = nanobind;
 
 void AudioResource(nb::module_ &m)
 {
@@ -530,9 +539,9 @@ void SoundStream(nb::module_ &m)
     // Move constructor and assignment operator are handled automatically
 }
 
-void Audio(nb::module_ &m)
+export void Audio(nb::module_ &m)
 {
-    nb::module_ audioModule = m.def_submodule("Audio", "Audio Submodule");
+    auto& audioModule = m;
     AudioResource(audioModule);
     InputSoundFile(audioModule);
     Listener(audioModule);
