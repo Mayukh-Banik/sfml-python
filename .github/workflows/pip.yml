@@ -1,12 +1,10 @@
 name: Pip
-
 on:
   workflow_dispatch:
   pull_request:
   push:
     branches:
       - master
-
 jobs:
   build:
     name: Build with Pip
@@ -16,25 +14,41 @@ jobs:
       matrix:
         platform: [windows-latest, macos-latest, ubuntu-latest]
         python-version: ["3.13"]
-
     steps:
     - uses: actions/checkout@v4
-
     - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-
+    
     - name: Set min macOS version
       if: runner.os == 'macOS'
       run: |
         echo "MACOSX_DEPLOYMENT_TARGET=10.15" >> $GITHUB_ENV
-
-    - name: Install Linux dependencies
+    
+    - name: Install Linux dependencies with Clang
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
+        
+        # Install LLVM/Clang repository
+        sudo apt-get install -y software-properties-common wget
+        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+        sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main"
+        sudo apt-get update
+        
+        # Install Clang and tools
+        sudo apt-get install -y \
+          clang-18 \
+          clang++-18 \
+          clang-tools-18 \
+          libc++-18-dev \
+          libc++abi-18-dev
+        
+        # Install system dependencies
         sudo apt-get install -y \
           build-essential \
+          cmake \
+          ninja-build \
           libfreetype6-dev \
           libx11-dev \
           libxrandr-dev \
@@ -46,11 +60,28 @@ jobs:
           libflac-dev \
           libogg-dev \
           libvorbis-dev
-
+        
+        # Set Clang as default compiler
+        sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-18 100
+        sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-18 100
+        sudo update-alternatives --install /usr/bin/clang-scan-deps clang-scan-deps /usr/bin/clang-scan-deps-18 100
+        
+        # Verify installation
+        clang --version
+        clang++ --version
+        clang-scan-deps --version
+        
+        # Set environment variables for this job
+        echo "CC=clang-18" >> $GITHUB_ENV
+        echo "CXX=clang++-18" >> $GITHUB_ENV
+    
     - name: Build and install
       run: |
         python -m pip install pytest
         pip install --verbose .
-
+      env:
+        CC: ${{ runner.os == 'Linux' && 'clang-18' || '' }}
+        CXX: ${{ runner.os == 'Linux' && 'clang++-18' || '' }}
+    
     - name: Test
       run: python -m pytest
