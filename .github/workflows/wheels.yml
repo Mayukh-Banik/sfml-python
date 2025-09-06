@@ -8,6 +8,7 @@ on:
   release:
     types:
       - published
+
 jobs:
   build_sdist:
     name: Build SDist
@@ -20,19 +21,6 @@ jobs:
     - name: Install system dependencies for SDist
       run: |
         sudo apt update
-        
-        sudo apt install -y software-properties-common wget
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main"
-        sudo apt update
-
-        sudo apt install -y \
-          clang-18 \
-          clang++-18 \
-          clang-tools-18 \
-          libc++-18-dev \
-          libc++abi-18-dev
-
         sudo apt install -y \
           cmake \
           ninja-build \
@@ -51,9 +39,6 @@ jobs:
        
     - name: Build SDist
       run: pipx run build --sdist
-      env:
-        CC: clang
-        CXX: clang++
    
     - name: Check metadata
       run: pipx run twine check dist/*
@@ -62,13 +47,14 @@ jobs:
       with:
         name: dist-sdist
         path: dist/*.tar.gz
+
   build_wheels:
     name: Wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
    
     steps:
     - uses: actions/checkout@v4
@@ -77,37 +63,24 @@ jobs:
    
     - uses: pypa/cibuildwheel@v2.22
       env:
-        # Linux-specific setup with Clang
+        # Linux-specific setup with GCC
         CIBW_BEFORE_ALL_LINUX: |
-          apt update &&
-          apt install -y software-properties-common wget &&
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - &&
-          add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main" &&
-          apt update &&
-          apt install -y \
-            clang-18 \
-            clang++-18 \
-            clang-tools-18 \
-            libc++-18-dev \
-            libc++abi-18-dev &&
-          apt install -y \
+          yum install -y \
             cmake \
             ninja-build \
-            libfreetype6-dev \
-            libx11-dev \
-            libxrandr-dev \
-            libxcursor-dev \
-            libxi-dev \
-            libudev-dev \
-            mesa-common-dev \
-            libglu1-mesa-dev \
-            libflac-dev \
-            libogg-dev \
-            libvorbis-dev \
-            libasound2-dev
-        # Use Clang only on Linux
-        CIBW_ENVIRONMENT_LINUX: CC=clang CXX=clang++
-        CIBW_ENVIRONMENT_PASS_LINUX: CC CXX
+            freetype-devel \
+            libX11-devel \
+            libXrandr-devel \
+            libXcursor-devel \
+            libXi-devel \
+            systemd-devel \
+            mesa-libGL-devel \
+            mesa-libGLU-devel \
+            flac-devel \
+            libogg-devel \
+            libvorbis-devel \
+            alsa-lib-devel
+        # Use default GCC toolchain
         CIBW_BUILD: "cp313-*"
    
     - name: Verify clean directory
@@ -119,6 +92,7 @@ jobs:
       with:
         path: wheelhouse/*.whl
         name: dist-${{ matrix.os }}
+
   upload_all:
     name: Upload if release
     needs: [build_wheels, build_sdist]
