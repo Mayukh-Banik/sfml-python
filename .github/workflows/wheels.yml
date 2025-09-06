@@ -67,10 +67,11 @@ jobs:
    
     - uses: pypa/cibuildwheel@v2.22
       env:
-        # Linux-specific setup with Clang
         CIBW_BEFORE_ALL_LINUX: |
           yum update -y && yum install -y \
             clang \
+            gcc-c++ \
+            libstdc++-devel \
             cmake \
             ninja-build \
             freetype-devel \
@@ -87,8 +88,9 @@ jobs:
             alsa-lib-devel || \
           (apt-get update && apt-get install -y \
             clang \
-            libc++-dev \
-            libc++abi-dev \
+            gcc-multilib \
+            g++ \
+            libc6-dev \
             cmake \
             ninja-build \
             libfreetype6-dev \
