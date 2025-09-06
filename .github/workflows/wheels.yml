@@ -18,9 +18,16 @@ jobs:
       with:
         submodules: true
    
-    - name: Install system dependencies for SDist
+    - name: Install system dependencies for SDist (with GCC >= 14)
       run: |
         sudo apt update
+        sudo apt install -y software-properties-common
+        sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+        sudo apt update
+        sudo apt install -y gcc-14 g++-14
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100 \
+                                 --slave /usr/bin/g++ g++ /usr/bin/g++-14
+
         sudo apt install -y \
           cmake \
           ninja-build \
@@ -63,8 +70,11 @@ jobs:
    
     - uses: pypa/cibuildwheel@v2.22
       env:
-        # Linux-specific setup with GCC
+        # Linux-specific setup with GCC >= 14
         CIBW_BEFORE_ALL_LINUX: |
+          yum install -y gcc-toolset-14 gcc-toolset-14-gcc gcc-toolset-14-g++
+          source /opt/rh/gcc-toolset-14/enable
+
           yum install -y \
             cmake \
             ninja-build \
@@ -80,7 +90,6 @@ jobs:
             libogg-devel \
             libvorbis-devel \
             alsa-lib-devel
-        # Use default GCC toolchain
         CIBW_BUILD: "cp313-*"
    
     - name: Verify clean directory
