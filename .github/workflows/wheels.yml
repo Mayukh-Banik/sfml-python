@@ -19,21 +19,21 @@ jobs:
    
     - name: Install system dependencies for SDist
       run: |
-        sudo apt-get update
+        sudo apt update
         
-        sudo apt-get install -y software-properties-common wget
+        sudo apt install -y software-properties-common wget
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
         sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main"
-        sudo apt-get update
+        sudo apt update
 
-        sudo apt-get install -y \
+        sudo apt install -y \
           clang-18 \
           clang++-18 \
           clang-tools-18 \
           libc++-18-dev \
           libc++abi-18-dev
 
-        sudo apt-get install -y \
+        sudo apt install -y \
           cmake \
           ninja-build \
           libfreetype6-dev \
@@ -79,18 +79,18 @@ jobs:
       env:
         # Linux-specific setup with Clang
         CIBW_BEFORE_ALL_LINUX: |
-          apt-get update &&
-          apt-get install -y software-properties-common wget &&
+          apt update &&
+          apt install -y software-properties-common wget &&
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - &&
           add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main" &&
-          apt-get update &&
-          apt-get install -y \
+          apt update &&
+          apt install -y \
             clang-18 \
             clang++-18 \
             clang-tools-18 \
             libc++-18-dev \
             libc++abi-18-dev &&
-          apt-get install -y \
+          apt install -y \
             cmake \
             ninja-build \
             libfreetype6-dev \
