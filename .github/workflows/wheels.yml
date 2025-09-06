@@ -17,27 +17,13 @@ jobs:
       with:
         submodules: true
    
-    - name: Install Clang and system dependencies for SDist
+    - name: Install system dependencies for SDist
       run: |
         sudo apt-get update
-        
-        # Install LLVM/Clang repository
-        sudo apt-get install -y software-properties-common wget
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main"
-        sudo apt-get update
-        
-        # Install Clang and tools
         sudo apt-get install -y \
-          clang-18 \
-          clang++-18 \
-          clang-tools-18 \
-          libc++-18-dev \
-          libc++abi-18-dev
-        
-        # Install system dependencies
-        sudo apt-get install -y \
-          build-essential \
+          clang \
+          libc++-dev \
+          libc++abi-dev \
           cmake \
           ninja-build \
           libfreetype6-dev \
@@ -52,22 +38,12 @@ jobs:
           libogg-dev \
           libvorbis-dev \
           libasound2-dev
-        
-        # Set Clang as default
-        sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-18 100
-        sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-18 100
-        sudo update-alternatives --install /usr/bin/clang-scan-deps clang-scan-deps /usr/bin/clang-scan-deps-18 100
-        
-        # Verify
-        clang --version
-        clang++ --version
-        clang-scan-deps --version
-   
+       
     - name: Build SDist
       run: pipx run build --sdist
       env:
-        CC: clang-18
-        CXX: clang++-18
+        CC: clang
+        CXX: clang++
    
     - name: Check metadata
       run: pipx run twine check dist/*
@@ -76,7 +52,6 @@ jobs:
       with:
         name: dist-sdist
         path: dist/*.tar.gz
-
   build_wheels:
     name: Wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -92,114 +67,45 @@ jobs:
    
     - uses: pypa/cibuildwheel@v2.22
       env:
-        # Linux-specific environment with Clang
-        CIBW_ENVIRONMENT_LINUX: CC=clang CXX=clang++
+        # Linux-specific setup with Clang
         CIBW_BEFORE_ALL_LINUX: |
-          # Install Clang in manylinux container
-          if command -v yum >/dev/null 2>&1; then
-            # CentOS/RHEL based (manylinux2014)
-            yum update -y
-            yum install -y epel-release
-            yum install -y centos-release-scl
-            yum install -y \
-              devtoolset-11-toolchain \
-              cmake3 \
-              ninja-build || yum install -y cmake ninja-build
-            
-            # Install Clang from EPEL or build from source
-            yum install -y \
-              clang \
-              clang-tools-extra || \
-            (
-              # Fallback: install from LLVM if available
-              curl -L https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04.tar.xz -o clang.tar.xz &&
-              tar -xf clang.tar.xz &&
-              cp -r clang+llvm-*/bin/* /usr/local/bin/ &&
-              cp -r clang+llvm-*/lib/* /usr/local/lib/ &&
-              cp -r clang+llvm-*/include/* /usr/local/include/ &&
-              ldconfig
-            )
-            
-            # Install audio/graphics dependencies
-            yum install -y \
-              freetype-devel \
-              libX11-devel \
-              libXrandr-devel \
-              libXcursor-devel \
-              libXi-devel \
-              systemd-devel \
-              mesa-libGL-devel \
-              mesa-libGLU-devel \
-              flac-devel \
-              libogg-devel \
-              libvorbis-devel \
-              alsa-lib-devel
-              
-          elif command -v apt-get >/dev/null 2>&1; then
-            # Debian/Ubuntu based
-            apt-get update
-            
-            # Install LLVM/Clang repository
-            apt-get install -y software-properties-common wget
-            wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
-            
-            # Determine Ubuntu version and add appropriate repo
-            UBUNTU_VERSION=$(lsb_release -rs | cut -d. -f1,2)
-            if [ "$UBUNTU_VERSION" = "22.04" ]; then
-              add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main"
-            elif [ "$UBUNTU_VERSION" = "20.04" ]; then
-              add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-18 main"
-            else
-              # Fallback to manual installation
-              add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main"
-            fi
-            
-            apt-get update
-            
-            # Install Clang and tools
-            apt-get install -y \
-              clang-18 \
-              clang++-18 \
-              clang-tools-18 \
-              libc++-18-dev \
-              libc++abi-18-dev || \
-            apt-get install -y \
-              clang \
-              clang-tools
-            
-            # Install dependencies
-            apt-get install -y \
-              build-essential \
-              cmake \
-              ninja-build \
-              libfreetype6-dev \
-              libx11-dev \
-              libxrandr-dev \
-              libxcursor-dev \
-              libxi-dev \
-              libudev-dev \
-              mesa-common-dev \
-              libglu1-mesa-dev \
-              libflac-dev \
-              libogg-dev \
-              libvorbis-dev \
-              libasound2-dev
-            
-            # Set up alternatives if specific version installed
-            if command -v clang-18 >/dev/null 2>&1; then
-              update-alternatives --install /usr/bin/clang clang /usr/bin/clang-18 100
-              update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-18 100
-              if command -v clang-scan-deps-18 >/dev/null 2>&1; then
-                update-alternatives --install /usr/bin/clang-scan-deps clang-scan-deps /usr/bin/clang-scan-deps-18 100
-              fi
-            fi
-          fi
-          
-          # Verify installation
-          clang --version || echo "Clang not found"
-          clang++ --version || echo "Clang++ not found"
-          clang-scan-deps --version || echo "clang-scan-deps not found (okay for basic builds)"
-
+          yum update -y && yum install -y \
+            clang \
+            cmake \
+            ninja-build \
+            freetype-devel \
+            libX11-devel \
+            libXrandr-devel \
+            libXcursor-devel \
+            libXi-devel \
+            systemd-devel \
+            mesa-libGL-devel \
+            mesa-libGLU-devel \
+            flac-devel \
+            libogg-devel \
+            libvorbis-devel \
+            alsa-lib-devel || \
+          (apt-get update && apt-get install -y \
+            clang \
+            libc++-dev \
+            libc++abi-dev \
+            cmake \
+            ninja-build \
+            libfreetype6-dev \
+            libx11-dev \
+            libxrandr-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libudev-dev \
+            mesa-common-dev \
+            libglu1-mesa-dev \
+            libflac-dev \
+            libogg-dev \
+            libvorbis-dev \
+            libasound2-dev)
+        # Use Clang only on Linux
+        CIBW_ENVIRONMENT_LINUX: CC=clang CXX=clang++
+        CIBW_ENVIRONMENT_PASS_LINUX: CC CXX
         CIBW_BUILD: "cp313-*"
    
     - name: Verify clean directory
@@ -211,7 +117,6 @@ jobs:
       with:
         path: wheelhouse/*.whl
         name: dist-${{ matrix.os }}
-
   upload_all:
     name: Upload if release
     needs: [build_wheels, build_sdist]
