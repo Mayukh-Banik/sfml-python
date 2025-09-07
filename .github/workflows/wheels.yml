@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.13"]
     
     steps:
@@ -52,12 +52,6 @@ jobs:
             libflac-dev \
             libopenal-dev
 
-    #   - name: Install Windows system dependencies
-    #     if: runner.os == 'Windows'
-    #     run: |
-    #       choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
-    #       choco install ninja -y
-
       - name: Install Python build dependencies
         run: |
           python -m pip install --upgrade pip
@@ -66,18 +60,13 @@ jobs:
       - name: Build package
         run: python -m build
 
-    #   - name: List built artifacts
-    #     run: |
-    #       if [ "${{ runner.os }}" == "Linux" ]; then
-    #         ls -la dist/
-    #       else
-    #         dir dist
-    #       fi
-
       - name: Test local installation
+        shell: python
         run: |
-          python -m pip install dist/*.whl
-          python -c "import pySFML; print('Successfully imported pySFML')"
+          import glob, subprocess, sys
+          wheel = glob.glob('dist/*.whl')[0]
+          subprocess.check_call([sys.executable, '-m', 'pip', 'install', wheel])
+          import pySFML; print('Successfully imported pySFML')
 
       - name: Upload built artifacts
         if: github.event_name == 'release' && github.event.action == 'published'
