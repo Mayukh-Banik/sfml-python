@@ -79,23 +79,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download Linux artifacts
+      - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           name: wheel-dist-ubuntu-latest
           path: dist/linux
 
-      - name: Download Windows artifacts
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: wheel-dist-windows-latest
           path: dist/windows
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheel-dist-macos-latest
+          path: dist/macos
 
       - name: Combine all wheels
         run: |
           mkdir -p dist/all
           cp dist/linux/* dist/all/
           cp dist/windows/* dist/all/
+          cp dist/macos/* dist/all/
 
       - name: Publish to Test PyPI
         uses: pypa/gh-action-pypi-publish@v1.5.2
@@ -103,4 +108,4 @@ jobs:
           user: __token__
           password: ${{ secrets.TEST_PYPI_PASSWORD }}
           repository_url: https://test.pypi.org/legacy/
-
+          packages_dir: dist/all
