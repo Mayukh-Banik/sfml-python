@@ -9,3 +9,4 @@ build
 .vs
 venv
 .pytest_cache
+.github/workflows/*temp*

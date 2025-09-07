@@ -1,4 +1,4 @@
-module;
+#pragma once
 
 #include "SFML/Audio.hpp"
 #include "SFML/System.hpp"
@@ -11,8 +11,6 @@ module;
 #include <nanobind/stl/filesystem.h>
 #include <nanobind/stl/vector.h>
 #include <nanobind/stl/shared_ptr.h>
-
-export module Bindings;
 
 namespace nb = nanobind;
 
@@ -539,7 +537,7 @@ void SoundStream(nb::module_ &m)
     // Move constructor and assignment operator are handled automatically
 }
 
-export void Audio(nb::module_ &m)
+void Audio(nb::module_ &m)
 {
     auto& audioModule = m;
     AudioResource(audioModule);

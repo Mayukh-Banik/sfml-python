@@ -1,8 +1,5 @@
-#include <nanobind/nanobind.h>
+#include "Audio.hpp"
 
-import Bindings;
-
-namespace nb = nanobind;
 using namespace nb::literals;
 
 NB_MODULE(PROJECT_NAME, m)
