@@ -65,7 +65,6 @@ jobs:
           import pySFML; print('Successfully imported pySFML')
 
       - name: Upload built artifacts
-        if: github.event_name == 'release' && github.event.action == 'published'
         uses: actions/upload-artifact@v4
         with:
           name: wheel-dist-${{ matrix.os }}
