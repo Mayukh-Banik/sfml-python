@@ -159,7 +159,7 @@ jobs:
         run: python -m build
 
       - name: Publish to TestPyPI
-        run: python -m twine upload --repository testpypi dist/* -u __token__ -p ${{ secrets.TEST_PYPI_API_TOKEN }}
+        run: python -m twine upload --repository testpypi dist/* -u __token__ -p ${{ secrets.TEST_PYPI_API_TOKEN }} --verbose
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
