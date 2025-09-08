@@ -159,9 +159,11 @@ jobs:
       - name: Build package
         run: python -m build
 
-      - name: Upload built artifacts
-        run: |
-          python -m twine upload --repository testpypi dist/* -u __token__ -p pypi-AgENdGVzdC5weXBpLm9yZwIkNzIzZmVkMzAtOTIwOS00Njc1LWJjOTgtN2FjNTRkNTllMGMxAAIqWzMsIjIzMjBiZjhlLTZmMjAtNGY2Yi1iMGE4LTQyY2Y2N2U2YTBjNiJdAAAGIDR-c4K94U8MGq2PSTqZ2xETWwTMECMox1D05rqZpMwv
+      - name: Publish to TestPyPI
+        run: python -m twine upload --repository testpypi dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
   #       uses: actions/upload-artifact@v4
   #       with:
   #         name: wheel-dist-${{ matrix.os }}
