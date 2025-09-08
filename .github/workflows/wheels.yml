@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   pull_request:
   push:
+
 jobs:
   build:
     name: Build wheels
@@ -37,7 +38,7 @@ jobs:
             fi
           CIBW_BUILD: "cp313-*"
           CIBW_SKIP: "*-win32 *-manylinux_i686"
-          
+         
       - name: Combine artifacts
         run: |
           mkdir -p dist_final
@@ -47,10 +48,12 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: python-package-distributions
+          name: python-package-distributions-${{ matrix.os }}
           path: dist_final/
          
       - name: Publish to TestPyPI
         if: github.event_name == 'push'
-        run: |
-          python -m twine upload --repository testpypi dist_final/* -u __token__ -p ${{ secrets.TEST_PYPI_API_TOKEN }} --verbose
+        run: python -m twine upload --repository testpypi dist_final/* -u __token__ -p ${{ secrets.TEST_PYPI_API_TOKEN }} --verbose
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
